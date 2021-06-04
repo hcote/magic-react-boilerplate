@@ -12,7 +12,7 @@ export default function Callback() {
     // On mount, we try to login with a Magic credential in the URL query.
     magic.auth.loginWithCredential().finally(() => {
       magic.user.getMetadata().then(setUser);
-      history.push("/profile");
+      history.push("/");
     });
   }, []);
 

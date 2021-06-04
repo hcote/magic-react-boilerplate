@@ -9,32 +9,39 @@ import Login from "./Login";
 import Callback from "./Callback";
 import Profile from "./Profile";
 
-// Create a context to store the user across all components in the app
+// Create a context to store the user, to be shared across all components
 export const UserContext = createContext(null);
 
 export default function App() {
-  const [user, setUser] = useState();
-
-  // On mount, we check if a user is logged in.
-  // If so, we'll retrieve the authenticated user's profile.
+  const [user, setUser] = useState(null);
+  
+  // If user is logged in, we'll retrieve the authenticated user's profile.
+  // Otherwise redirect to /login
   useEffect(() => {
     magic.user.isLoggedIn().then(magicIsLoggedIn => {
-      magicIsLoggedIn && magic.user.getMetadata().then(setUser);
+      if (magicIsLoggedIn) {
+        magic.user.getMetadata().then(setUser)
+      } else {
+        // Don't redirect on mount of /login or /callback as user is expected to not be logged in yet here
+        if (window.location.pathname !== "/login" && window.location.pathname !== "/callback") {
+          window.location.href = new URL("/login", window.location.origin).href
+        }
+      }
     });
   }, []);
 
   return (
     <BrowserRouter>
       <div className="App">
-        <Switch>
-          <UserContext.Provider value={[user, setUser]}>
-            <Nav>
-              <Route path='/login' component={Login} />
-              <Route path='/profile' component={Profile} />
-              <Route path='/callback' component={Callback} />
-            </Nav>
-          </UserContext.Provider>
-        </Switch>
+        <UserContext.Provider value={[user, setUser]}>
+          <Nav>
+            <Switch>
+              <Route exact path='/login' component={Login} />
+              <Route exact path='/callback' component={Callback} />
+              <Route exact path='*' component={Profile} />
+            </Switch>
+          </Nav>
+        </UserContext.Provider>
       </div>
     </BrowserRouter>
   );

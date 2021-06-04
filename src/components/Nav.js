@@ -14,7 +14,7 @@ export default function Nav(props) {
   */
   const logout = useCallback(() => {
     magic.user.logout().then(() => {
-      setUser(false);
+      setUser(null);
       history.push("/login");
     })
   }, [history]);

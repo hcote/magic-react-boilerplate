@@ -1,14 +1,19 @@
-import React, { useCallback, useState, useContext } from "react";
+import React, { useCallback, useState, useContext, useEffect } from "react";
 import { useHistory } from "react-router";
 import { UserContext } from './App.js';
 import { magic } from "../magic";
 import { CallToAction } from '@magiclabs/ui';
 
 export default function Login() {
-  const [, setUser] = useContext(UserContext);
+  const [user, setUser] = useContext(UserContext);
   const [email, setEmail] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const history = useHistory();
+
+  /* Redirect if user is already logged in */
+  useEffect(() => {
+    user && history.push('/');
+  }, [user])
 
   /**
    * Perform login action via Magic's passwordless flow. Upon successuful
@@ -23,7 +28,7 @@ export default function Login() {
         redirectURI: new URL("/callback", window.location.origin).href,
       });
       magic.user.getMetadata().then(setUser);
-      history.push("/profile");
+      history.push("/");
     } catch {
       setIsLoggingIn(false);
     }
